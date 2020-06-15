@@ -56,5 +56,114 @@ public class EventsDao {
 			return null ;
 		}
 	}
+	
+	/**
+	 * Anno presente nel db
+	 * @return
+	 */
+	public List<Integer> getYears(){
+		String sql="SELECT DISTINCT YEAR(reported_date) AS year " + 
+				"FROM EVENTS " + 
+				"ORDER BY YEAR asc ";
+		List<Integer> lista= new ArrayList<>(); 
+		
+		try {
+			Connection conn = DBConnect.getConnection() ;
+            PreparedStatement st = conn.prepareStatement(sql) ;
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				lista.add(res.getInt("year")); 
+			}
+			conn.close();
+			return lista ;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+		
+	}
+	
+	public List<Integer> getVertex(){
+		String sql="SELECT DISTINCT district_id AS vertex " + 
+				"FROM EVENTS ";
+	List<Integer> lista= new ArrayList<>(); 
+		
+		try {
+			Connection conn = DBConnect.getConnection() ;
+            PreparedStatement st = conn.prepareStatement(sql) ;
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				lista.add(res.getInt("vertex")); 
+			}
+			conn.close();
+			return lista ;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+		
+		
+	            
+	}
+
+	public Double getLatMedia(Integer year, Integer v) {
+		String sql="SELECT AVG(geo_lat) as lat " + 
+				"FROM EVENTS " + 
+				"WHERE district_id=? AND YEAR(reported_date)=?"; 
+
+		Double lat=-1.1; 
+		try {
+			Connection conn = DBConnect.getConnection() ;
+            PreparedStatement st = conn.prepareStatement(sql) ;
+            st.setInt(1,  v);
+            st.setInt(2,  year);
+			ResultSet res = st.executeQuery() ;
+			
+			if(res.first()) {
+				lat= res.getDouble("lat"); 
+				
+			}
+			conn.close();
+			return lat ;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+		
+	}
+
+	public Double getLonMedia(Integer year, Integer v) {
+		String sql="SELECT AVG(geo_lon) as lon " + 
+				"FROM EVENTS " + 
+				"WHERE district_id=? AND YEAR(reported_date)=?"; 
+		Double lon=-1.1; 
+		try {
+			Connection conn = DBConnect.getConnection() ;
+            PreparedStatement st = conn.prepareStatement(sql) ;
+            st.setInt(1,  v);
+            st.setInt(2,  year);
+			ResultSet res = st.executeQuery() ;
+			
+			if(res.next()) {
+				lon= res.getDouble("lon"); 
+				
+			}
+			conn.close();
+			return lon ;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+	}
 
 }
