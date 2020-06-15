@@ -5,7 +5,10 @@
 package it.polito.tdp.crimes;
 
 import java.net.URL;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
+import java.util.zip.DataFormatException;
 
 import it.polito.tdp.crimes.model.DistrictVicino;
 import it.polito.tdp.crimes.model.Model;
@@ -29,10 +32,10 @@ public class FXMLController {
     private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxMese"
-    private ComboBox<?> boxMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGiorno"
-    private ComboBox<?> boxGiorno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxGiorno; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnCreaReteCittadina"
     private Button btnCreaReteCittadina; // Value injected by FXMLLoader
@@ -65,11 +68,51 @@ public class FXMLController {
     			txtResult.appendText(v.toString()+"\n");
     		}
     	}
+    	
+    	//pulizia e riempimento boxes 
+    	this.boxMese.getItems().removeAll(this.boxMese.getItems()); 
+    	this.boxMese.getItems().addAll(model.getMonth(this.boxAnno.getValue())); 
+    	this.boxGiorno.getItems().removeAll(this.boxGiorno.getItems()); 
+    	this.boxGiorno.getItems().addAll(model.getDays(this.boxAnno.getValue())); 
+    	
+    	this.btnSimula.setDisable(false);
     }
 
     @FXML
     void doSimula(ActionEvent event) {
 
+    	txtResult.clear();
+    	int n= -1; 
+    	if (txtN.getText().length()==0 ) {
+    		txtResult.appendText("ERRORE inserire un numero di agenti compreso fra 1-10!\n");
+    		return; 
+    	}
+    	try {
+    		n= Integer.parseInt(this.txtN.getText());  
+    	}catch(NumberFormatException nfe) {
+    		txtResult.appendText("ERRORE inserire un numero di agenti compreso fra 1-10!\n");
+    		return; 
+    	}
+    	
+    	if (n<1 || n>10) {
+    		txtResult.appendText("ERRORE inserire un numero di agenti compreso fra 1-10!\n");
+    		return; 
+    	}
+    	
+    	if (this.boxAnno.getValue()==null ||this.boxMese.getValue()==null || this.boxGiorno.getValue()==null) {
+    		txtResult.appendText("ERRORE : selezionare la data\n");
+    		return; 
+    	}
+    	
+    	//ulteriore controllo sul fatto che la data sia corretta, p.ex 30 Feb non andrebbe bene 
+    	try {
+    		LocalDate.of(this.boxAnno.getValue(), this.boxMese.getValue(), this.boxGiorno.getValue()); 
+    	}catch(DateTimeException dte) {
+    		txtResult.appendText("ERRORE : La data inserita non e' corretta");
+    		return; 
+    	}
+    	txtResult.appendText("Simulazione per "+txtN.getText()+" agenti\n\n");
+    	txtResult.appendText("Crimes mal gestiti "+model.simula(this.boxAnno.getValue(), this.boxMese.getValue(), this.boxGiorno.getValue(), n)); 
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -86,6 +129,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
-    	this.boxAnno.getItems().addAll(model.getYears()); 
+    	this.boxAnno.getItems().addAll(model.getYears());
+    	this.btnSimula.setDisable(true);
     }
 }

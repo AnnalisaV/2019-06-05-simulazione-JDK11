@@ -79,4 +79,20 @@ public class Model {
 		List<Integer> lista= new ArrayList<>(this.graph.vertexSet());
 		return lista; 
 	}
+	
+	public List<Integer> getMonth(Integer year){
+		return this.dao.getMonths(year); 
+	}
+	public List<Integer> getDays(Integer year){
+		return this.dao.getDays(year); 
+	}
+
+	public int simula(Integer anno, Integer mese, Integer giorno, int N) {
+		Simulator sim= new Simulator(); 
+		sim.init(N, anno, mese, giorno, graph);
+		return sim.run(); 
+		
+	}
+	
+	
 }
